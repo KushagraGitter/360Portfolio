@@ -1,7 +1,6 @@
 {
     "short_name": "Portfolio",
     "name": "My Portfolio",
- 
     "start_url": "/maps/?source=pwa",
     "background_color": "#0000",
     "display": "standalone",
