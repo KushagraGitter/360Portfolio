@@ -1,22 +1,283 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <title>Kushagra Portfolio </title>
-    <style>body { margin: 0; }</style>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="description" content="My Portfolio">
-    <meta name="keywords" content="HTML,CSS,XML,JavaScript,ReactJs,NodeJs,ReactNative,React360,Kushagra,krajpoot@deloitte.com">
-    <meta name="author" content="Kushagra Rajpoot">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta charset="UTF-8" />
+    <title>Kushagra Portfolio</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="description" content="My Portfolio" />
+    <meta
+      name="keywords"
+      content="HTML,CSS,XML,JavaScript,ReactJs,NodeJs,ReactNative,React360,Kushagra,krajpoot@deloitte.com"
+    />
+    <meta name="author" content="Kushagra Rajpoot" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Inter", "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: radial-gradient(circle at top, #162544, #090b16 55%, #05070c);
+        overflow: hidden;
+      }
+
+      #overlay {
+        position: fixed;
+        top: 24px;
+        left: 24px;
+        right: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      #overlay .panel {
+        background: rgba(8, 12, 20, 0.72);
+        border: 1px solid rgba(120, 170, 255, 0.3);
+        border-radius: 16px;
+        padding: 18px 20px;
+        max-width: 320px;
+        color: #e7edff;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 18px 40px rgba(5, 10, 25, 0.45);
+        pointer-events: auto;
+      }
+
+      #overlay h1 {
+        margin: 0 0 8px;
+        font-size: 24px;
+        letter-spacing: 0.02em;
+      }
+
+      #overlay p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #c3d4ff;
+      }
+
+      #detail-panel h2 {
+        margin: 0 0 6px;
+        font-size: 18px;
+        color: #ffffff;
+      }
+
+      #detail-panel p {
+        font-size: 13px;
+      }
+
+      #hint {
+        font-size: 12px;
+        margin-top: 12px;
+        color: #9bb7ff;
+      }
+
+      canvas {
+        display: block;
+      }
+    </style>
   </head>
   <body>
-    <div id="container"></div>
-    <script src="./client.bundle.js"></script>
+    <div id="overlay">
+      <div class="panel">
+        <h1>Kushagra Rajpoot</h1>
+        <p>
+          Welcome to my interactive 3D portfolio. Rotate, zoom, and click each card to
+          explore my story, projects, and skills.
+        </p>
+        <div id="hint">Tip: Drag to orbit • Scroll to zoom • Click to focus</div>
+      </div>
+      <div class="panel" id="detail-panel">
+        <h2>Explore the cards</h2>
+        <p>Select a floating card to reveal details here.</p>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.155.0/examples/js/controls/OrbitControls.js"></script>
     <script>
-      React360.init(
-        'index.bundle.js',
-        document.getElementById('container'),
-       
-      );
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.Fog(0x05070c, 6, 18);
+
+      const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 1.5, 7);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      document.body.appendChild(renderer.domElement);
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.minDistance = 4;
+      controls.maxDistance = 12;
+      controls.maxPolarAngle = Math.PI * 0.6;
+
+      const ambientLight = new THREE.AmbientLight(0x9bb7ff, 0.8);
+      scene.add(ambientLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+      keyLight.position.set(4, 6, 2);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.PointLight(0x5aa5ff, 0.8, 30);
+      rimLight.position.set(-5, 2, -6);
+      scene.add(rimLight);
+
+      const starGeometry = new THREE.BufferGeometry();
+      const starCount = 600;
+      const starPositions = new Float32Array(starCount * 3);
+      for (let i = 0; i < starCount * 3; i += 3) {
+        starPositions[i] = (Math.random() - 0.5) * 30;
+        starPositions[i + 1] = (Math.random() - 0.2) * 16;
+        starPositions[i + 2] = (Math.random() - 0.5) * 30;
+      }
+      starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+      const starMaterial = new THREE.PointsMaterial({ color: 0xcfe2ff, size: 0.08, transparent: true });
+      const stars = new THREE.Points(starGeometry, starMaterial);
+      scene.add(stars);
+
+      const cardData = [
+        {
+          title: "About Me",
+          description:
+            "Product-minded developer who blends front-end craft with immersive 3D storytelling. I enjoy turning complex ideas into elegant experiences.",
+          accent: "#5ab3ff",
+        },
+        {
+          title: "Projects",
+          description:
+            "Recent work includes immersive dashboards, spatial storytelling experiences, and data-driven web apps with bold visuals.",
+          accent: "#ff6ec7",
+        },
+        {
+          title: "Skills",
+          description:
+            "Three.js, React, WebGL, UI/UX prototyping, Node.js, and rapid iteration on interactive experiences.",
+          accent: "#5cffc6",
+        },
+        {
+          title: "Contact",
+          description:
+            "Let’s build something memorable together. Reach out via email or connect on LinkedIn for collaborations.",
+          accent: "#ffc857",
+        },
+      ];
+
+      const cardGroup = new THREE.Group();
+      const cardMeshes = [];
+      const geometry = new THREE.PlaneGeometry(2.2, 1.4, 1, 1);
+
+      function createCardTexture(title, accent) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 512;
+        canvas.height = 320;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "rgba(8, 12, 24, 0.85)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 6;
+        ctx.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+        ctx.font = "bold 48px Inter, sans-serif";
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(title, 40, 120);
+        ctx.font = "24px Inter, sans-serif";
+        ctx.fillStyle = "#c3d4ff";
+        ctx.fillText("Click to explore", 40, 170);
+        return new THREE.CanvasTexture(canvas);
+      }
+
+      cardData.forEach((card, index) => {
+        const texture = createCardTexture(card.title, card.accent);
+        const material = new THREE.MeshStandardMaterial({
+          map: texture,
+          transparent: true,
+          metalness: 0.2,
+          roughness: 0.4,
+          emissive: new THREE.Color(card.accent),
+          emissiveIntensity: 0.1,
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        const angle = (index / cardData.length) * Math.PI * 2;
+        mesh.position.set(Math.cos(angle) * 3, 0.6, Math.sin(angle) * 3);
+        mesh.lookAt(0, 0.6, 0);
+        mesh.userData = card;
+        cardGroup.add(mesh);
+        cardMeshes.push(mesh);
+      });
+
+      scene.add(cardGroup);
+
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      let hovered = null;
+
+      function updateDetail(card) {
+        const panel = document.getElementById("detail-panel");
+        panel.innerHTML = `<h2>${card.title}</h2><p>${card.description}</p>`;
+      }
+
+      function onPointerMove(event) {
+        pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      }
+
+      function onClick() {
+        if (hovered) {
+          updateDetail(hovered.userData);
+        }
+      }
+
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("click", onClick);
+
+      function animate(time) {
+        requestAnimationFrame(animate);
+        cardGroup.rotation.y = time * 0.0002;
+        cardMeshes.forEach((mesh, index) => {
+          mesh.position.y = 0.6 + Math.sin(time * 0.001 + index) * 0.15;
+        });
+
+        raycaster.setFromCamera(pointer, camera);
+        const intersects = raycaster.intersectObjects(cardMeshes);
+        if (intersects.length) {
+          const target = intersects[0].object;
+          if (hovered && hovered !== target) {
+            hovered.scale.set(1, 1, 1);
+            hovered.material.emissiveIntensity = 0.1;
+          }
+          hovered = target;
+          hovered.scale.set(1.08, 1.08, 1.08);
+          hovered.material.emissiveIntensity = 0.35;
+        } else if (hovered) {
+          hovered.scale.set(1, 1, 1);
+          hovered.material.emissiveIntensity = 0.1;
+          hovered = null;
+        }
+
+        stars.rotation.y = time * 0.00005;
+        controls.update();
+        renderer.render(scene, camera);
+      }
+
+      function onResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      window.addEventListener("resize", onResize);
+      animate();
     </script>
   </body>
 </html>
